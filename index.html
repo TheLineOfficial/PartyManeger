@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Party Manager Pro - Sistema Completo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #000000 0%, #000000 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #000000 0%, #000000 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .tabs {
+        display: flex;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 30px;
+        background: #f8fafc;
+        border-radius: 10px 10px 0 0;
+        overflow: hidden;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 15px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-weight: 600;
+        background: #f8fafc;
+      }
+
+      .tab.active {
+        background: linear-gradient(135deg, #000000 0%, #000000 100%);
+        color: white;
+      }
+
+      .tab:hover:not(.active) {
+        background: #e2e8f0;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .form-section {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #000000;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .input-group {
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #000000 0%, #000000 100%);
+        color: white;
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+      }
+
+      .btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: #6b7280;
+        color: white;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .participant-card {
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .participant-card.active {
+        border-color: #10b981;
+        background: #ecfdf5;
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+      }
+
+      .participant-card.paused {
+        border-color: #f59e0b;
+        background: #fffbeb;
+      }
+
+      .participant-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .participant-info {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .participant-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 5px;
+      }
+
+      .participant-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 14px;
+        color: #6b7280;
+        flex-wrap: wrap;
+      }
+
+      .participant-controls {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-active {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-paused {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-stopped {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .percentage-input {
+        width: 80px !important;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .timer {
+        font-family: "Courier New", monospace;
+        font-weight: 700;
+        font-size: 14px;
+        background: #f3f4f6;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+
+      .event-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .event-active {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .event-finished {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        border: 2px solid #e2e8f0;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 12px;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border-left: 4px solid;
+      }
+
+      .alert-success {
+        background: #f0fdf4;
+        color: #166534;
+        border-color: #22c55e;
+      }
+
+      .alert-warning {
+        background: #fffbeb;
+        color: #92400e;
+        border-color: #f59e0b;
+      }
+
+      .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #ef4444;
+      }
+
+      .floating-controls {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        display: flex;
+        gap: 15px;
+        z-index: 1000;
+      }
+
+      .floating-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .floating-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px 0;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        width: auto !important;
+        margin: 0;
+      }
+
+      .value-card {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        margin: 15px 0;
+      }
+
+      .value-card h3 {
+        font-size: 2rem;
+        margin-bottom: 5px;
+      }
+
+      @media (max-width: 768px) {
+        .tabs {
+          flex-direction: column;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .participant-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .participant-controls {
+          justify-content: center;
+        }
+
+        .floating-controls {
+          bottom: 20px;
+          right: 20px;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Party Manager By FireG3</h1>
+        <p>Sistema de Gerenciamento de Participação</p>
+      </div>
+
+      <div class="content">
+        <div class="tabs">
+          <div class="tab active" onclick="showTab('setup')">
+            📋 Configuração
+          </div>
+          <div class="tab" onclick="showTab('manage')">⚡ Gerenciar</div>
+          <div class="tab" onclick="showTab('reports')">📊 Relatórios</div>
+        </div>
+
+        <!-- Aba de Configuração -->
+        <div id="setup" class="tab-content active">
+          <div class="form-section">
+            <div class="section-title">🎯 Configurações do Evento</div>
+
+            <div class="form-group">
+              <label>Nome do Evento</label>
+              <input
+                type="text"
+                id="eventName"
+                placeholder="Digite o nome do evento"
+              />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Taxa do Host (%)</label>
+                <input
+                  type="number"
+                  id="hostRate"
+                  value="20"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                />
+              </div>
+              <div class="form-group">
+                <label>Modo de Cálculo</label>
+                <select id="calculationMode">
+                  <option value="time">Baseado no Tempo</option>
+                  <option value="manual">Manual</option>
+                  <option value="hybrid">Híbrido</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Valor Total do Evento (M) - Opcional</label>
+              <input
+                type="number"
+                id="totalValue"
+                placeholder="Digite o valor total arrecadado (pode ser definido após o evento)"
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Descrição</label>
+              <textarea
+                id="eventDescription"
+                placeholder="Descrição do evento"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="startAllOnEvent" checked />
+                <label for="startAllOnEvent"
+                  >Iniciar todos os participantes automaticamente ao começar o
+                  evento</label
+                >
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="autoStartNewParticipants" checked />
+                <label for="autoStartNewParticipants"
+                  >Iniciar automaticamente novos participantes adicionados
+                  durante o evento</label
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title">👥 Gerenciar Participantes</div>
+
+            <div class="input-group">
+              <div class="form-group" style="flex: 1; margin-bottom: 0">
+                <input
+                  type="text"
+                  id="participantName"
+                  placeholder="Nome do participante"
+                />
+              </div>
+              <div class="form-group" style="margin-bottom: 0">
+                <input
+                  type="number"
+                  id="participantInitialPercent"
+                  placeholder="% inicial"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                />
+              </div>
+              <button class="btn btn-primary" onclick="addParticipant()">
+                ➕ Adicionar
+              </button>
+            </div>
+
+            <div id="participantsList"></div>
+
+            <div class="btn-group">
+              <button
+                class="btn btn-success"
+                onclick="startEvent()"
+                id="startBtn"
+              >
+                🚀 Iniciar Evento
+              </button>
+              <button class="btn btn-secondary" onclick="clearAll()">
+                🗑️ Limpar Tudo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aba de Gerenciamento -->
+        <div id="manage" class="tab-content">
+          <div id="eventInfo"></div>
+          <div id="participantsManage"></div>
+        </div>
+
+        <!-- Aba de Relatórios -->
+        <div id="reports" class="tab-content">
+          <div id="reportContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controles Flutuantes -->
+    <div class="floating-controls" id="floatingControls" style="display: none">
+      <button
+        class="floating-btn btn-warning"
+        onclick="setTotalValue()"
+        title="Definir Valor Total"
+      >
+        💰
+      </button>
+      <button
+        class="floating-btn btn-danger"
+        onclick="finishEvent()"
+        title="Finalizar Evento"
+      >
+        ⏹️
+      </button>
+      <button
+        class="floating-btn btn-primary"
+        onclick="exportPDF()"
+        title="Exportar PDF"
+      >
+        📄
+      </button>
+    </div>
+
+    <script>
+      // Variáveis globais
+      let participants = [];
+      let eventData = null;
+      let eventActive = false;
+      let mainTimer = null;
+      let totalEventValue = 0;
+
+      // Inicialização
+      document.addEventListener("DOMContentLoaded", function () {
+        renderParticipants();
+        updateReports();
+      });
+
+      // Gerenciamento de abas
+      function showTab(tabName) {
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
+
+        document
+          .querySelector(`[onclick="showTab('${tabName}')"]`)
+          .classList.add("active");
+        document.getElementById(tabName).classList.add("active");
+
+        if (tabName === "reports") {
+          updateReports();
+        } else if (tabName === "manage") {
+          updateManageTab();
+        }
+      }
+
+      // Adicionar participante
+      function addParticipant() {
+        const name = document.getElementById("participantName").value.trim();
+        const initialPercent =
+          parseFloat(
+            document.getElementById("participantInitialPercent").value
+          ) || 0;
+
+        if (!name) {
+          alert("Por favor, digite o nome do participante.");
+          return;
+        }
+
+        if (
+          participants.find((p) => p.name.toLowerCase() === name.toLowerCase())
+        ) {
+          alert("Já existe um participante com este nome.");
+          return;
+        }
+
+        const participant = {
+          id: Date.now() + Math.random(),
+          name: name,
+          status: "stopped",
+          totalTime: 0,
+          currentSessionStart: null,
+          percentage: initialPercent,
+          sessions: [],
+          joinTime: new Date(),
+        };
+
+        participants.push(participant);
+
+        document.getElementById("participantName").value = "";
+        document.getElementById("participantInitialPercent").value = "";
+
+        renderParticipants();
+        updateReports();
+
+        if (eventActive && eventData.settings?.autoStartNewParticipants) {
+          startParticipant(participant.id);
+          alert(`${name} foi adicionado e iniciado automaticamente!`);
+        } else {
+          alert(`${name} foi adicionado com sucesso!`);
+        }
+      }
+
+      // Remover participante
+      function removeParticipant(id) {
+        if (
+          eventActive &&
+          !confirm(
+            "Remover participante durante o evento? Isso pode afetar os cálculos."
+          )
+        ) {
+          return;
+        }
+
+        const participant = participants.find((p) => p.id === id);
+        if (participant && participant.status === "active") {
+          stopParticipant(id);
+        }
+
+        participants = participants.filter((p) => p.id !== id);
+        renderParticipants();
+        updateReports();
+
+        if (eventData?.calculationMode === "time") {
+          redistributePercentages();
+        }
+      }
+
+      // Renderizar participantes
+      function renderParticipants() {
+        const container = document.getElementById("participantsList");
+
+        if (participants.length === 0) {
+          container.innerHTML =
+            '<div class="alert alert-warning">Nenhum participante adicionado ainda.</div>';
+          document.getElementById("startBtn").disabled = true;
+          return;
+        }
+
+        container.innerHTML = participants
+          .map(
+            (participant) => `
+                <div class="participant-card ${participant.status}">
+                    <div class="participant-header">
+                        <div class="participant-info">
+                            <div class="participant-name">${
+                              participant.name
+                            }</div>
+                            <div class="participant-stats">
+                                <span class="timer">${formatTime(
+                                  participant.totalTime +
+                                    getCurrentSessionTime(participant)
+                                )}</span>
+                                <span class="status-indicator status-${
+                                  participant.status
+                                }">
+                                    ${getStatusIcon(
+                                      participant.status
+                                    )} ${getStatusText(participant.status)}
+                                </span>
+                                <span>Porcentagem: ${participant.percentage.toFixed(
+                                  1
+                                )}%</span>
+                            </div>
+                        </div>
+                        <div class="participant-controls">
+                            ${
+                              !eventActive
+                                ? `<button class="btn btn-danger" onclick="removeParticipant(${participant.id})">🗑️</button>`
+                                : ""
+                            }
+                        </div>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+
+        document.getElementById("startBtn").disabled =
+          participants.length === 0;
+      }
+
+      // Iniciar evento
+      function startEvent() {
+        const eventName = document.getElementById("eventName").value.trim();
+        if (!eventName) {
+          alert("Por favor, adicione um nome ao evento.");
+          return;
+        }
+
+        if (participants.length === 0) {
+          alert("Por favor, adicione pelo menos um participante.");
+          return;
+        }
+
+        const startAllOnEvent =
+          document.getElementById("startAllOnEvent").checked;
+        const autoStartNewParticipants = document.getElementById(
+          "autoStartNewParticipants"
+        ).checked;
+
+        const hostRateValue = parseFloat(
+          document.getElementById("hostRate").value
+        );
+        const totalValueInput = parseFloat(
+          document.getElementById("totalValue").value
+        );
+
+        eventData = {
+          name: eventName,
+          description: document.getElementById("eventDescription").value,
+          hostRate: isNaN(hostRateValue) ? 20 : hostRateValue,
+          calculationMode: document.getElementById("calculationMode").value,
+          totalValue: isNaN(totalValueInput) ? 0 : totalValueInput,
+          startTime: new Date(),
+          status: "active",
+          endTime: null,
+          settings: {
+            startAllOnEvent: startAllOnEvent,
+            autoStartNewParticipants: autoStartNewParticipants,
+          },
+        };
+
+        totalEventValue = eventData.totalValue;
+        eventActive = true;
+        document.getElementById("floatingControls").style.display = "flex";
+
+        // Limpar timer anterior se existir
+        if (mainTimer) {
+          clearInterval(mainTimer);
+        }
+        mainTimer = setInterval(updateTimers, 1000);
+
+        if (startAllOnEvent) {
+          let startedCount = 0;
+          participants.forEach((participant) => {
+            if (participant.status === "stopped") {
+              participant.status = "active";
+              participant.currentSessionStart = new Date();
+              startedCount++;
+            }
+          });
+          alert(
+            `Evento iniciado! ${startedCount} participantes foram iniciados automaticamente.`
+          );
+        } else {
+          alert(
+            "Evento iniciado! Use os controles para gerenciar os participantes."
+          );
+        }
+
+        showTab("manage");
+      }
+
+      // Definir/Atualizar valor total
+      function setTotalValue() {
+        const currentValue = totalEventValue || 0;
+        const newValue = prompt(
+          `Digite o valor total arrecadado no evento (M):`,
+          currentValue.toFixed(2)
+        );
+
+        if (
+          newValue !== null &&
+          !isNaN(parseFloat(newValue)) &&
+          parseFloat(newValue) >= 0
+        ) {
+          totalEventValue = parseFloat(newValue);
+          if (eventData) {
+            eventData.totalValue = totalEventValue;
+          }
+          updateReports();
+          updateManageTab();
+          alert(`Valor total definido como M ${totalEventValue.toFixed(2)}`);
+        } else if (newValue !== null) {
+          alert("Por favor, digite um valor válido (número positivo).");
+        }
+      }
+
+      // Calcular valores financeiros
+      function calculateFinancialValues() {
+        if (!totalEventValue || totalEventValue <= 0) {
+          return null;
+        }
+
+        const hostValue = (totalEventValue * eventData.hostRate) / 100;
+        const remainingValue = totalEventValue - hostValue;
+
+        const participantValues = participants.map((participant) => ({
+          ...participant,
+          value: (remainingValue * participant.percentage) / 100,
+          id: participant.id,
+        }));
+
+        return {
+          totalValue: totalEventValue,
+          hostValue: hostValue,
+          remainingValue: remainingValue,
+          participantValues: participantValues,
+        };
+      }
+
+      // Atualizar aba de gerenciamento
+      function updateManageTab() {
+        if (!eventData) {
+          document.getElementById("eventInfo").innerHTML =
+            '<div class="alert alert-warning">Nenhum evento ativo</div>';
+          document.getElementById("participantsManage").innerHTML = "";
+          return;
+        }
+
+        const eventDuration = eventData.endTime
+          ? eventData.endTime - eventData.startTime
+          : new Date() - eventData.startTime;
+
+        const financial = calculateFinancialValues();
+
+        document.getElementById("eventInfo").innerHTML = `
+                <div class="event-status event-${eventData.status}">
+                    ${getEventStatusIcon(eventData.status)} ${
+          eventData.name
+        } - ${getEventStatusText(eventData.status)}
+                </div>
+                
+                ${
+                  financial
+                    ? `
+                <div class="value-card">
+                    <h3>M ${financial.totalValue.toFixed(2)}</h3>
+                    <p>Valor Total do Evento</p>
+                </div>
+                `
+                    : `
+                <div class="alert alert-warning">
+                    💡 <strong>Dica:</strong> Use o botão 💰 para definir o valor total e calcular automaticamente os valores de cada participante!
+                </div>
+                `
+                }
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${eventData.hostRate}%</div>
+                        <div class="stat-label">Taxa do Host</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${participants.length}</div>
+                        <div class="stat-label">Participantes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatTime(
+                          eventDuration
+                        )}</div>
+                        <div class="stat-label">Duração</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${
+                          participants.filter((p) => p.status === "active")
+                            .length
+                        }</div>
+                        <div class="stat-label">Ativos</div>
+                    </div>
+                    ${
+                      financial
+                        ? `
+                    <div class="stat-card">
+                        <div class="stat-value">M ${financial.hostValue.toFixed(
+                          2
+                        )}</div>
+                        <div class="stat-label">Valor do Host</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">M ${financial.remainingValue.toFixed(
+                          2
+                        )}</div>
+                        <div class="stat-label">Para Participantes</div>
+                    </div>
+                    `
+                        : ""
+                    }
+                </div>
+            `;
+
+        // Lista de participantes
+        document.getElementById("participantsManage").innerHTML = `
+                <div class="form-section">
+                    <div class="section-title">👥 Controle de Participantes</div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="startAllParticipants()">▶️ Iniciar Todos</button>
+                        <button class="btn btn-warning" onclick="pauseAllParticipants()">⏸️ Pausar Todos</button>
+                        <button class="btn btn-danger" onclick="stopAllParticipants()">⏹️ Parar Todos</button>
+                        <button class="btn btn-primary" onclick="addParticipantDuringEvent()">➕ Adicionar Participante</button>
+                        <button class="btn btn-secondary" onclick="redistributePercentages()">🔄 Recalcular</button>
+                    </div>
+                    
+                    ${participants
+                      .map((participant) => {
+                        const participantValue = financial
+                          ? financial.participantValues.find(
+                              (p) => p.id === participant.id
+                            )?.value || 0
+                          : 0;
+                        return `
+                        <div class="participant-card ${participant.status}">
+                            <div class="participant-header">
+                                <div class="participant-info">
+                                    <div class="participant-name">${
+                                      participant.name
+                                    }</div>
+                                    <div class="participant-stats">
+                                        <span class="status-indicator status-${
+                                          participant.status
+                                        }">
+                                            ${getStatusIcon(
+                                              participant.status
+                                            )} ${getStatusText(
+                          participant.status
+                        )}
+                                        </span>
+                                        <span>Sessões: ${
+                                          participant.sessions.length
+                                        }</span>
+                                        <span>Porcentagem: ${participant.percentage.toFixed(
+                                          1
+                                        )}%</span>
+                                        ${
+                                          financial
+                                            ? `<span><strong>M ${participantValue.toFixed(
+                                                2
+                                              )}</strong></span>`
+                                            : ""
+                                        }
+                                    </div>
+                                </div>
+                                <div class="participant-controls">
+                                    <input type="number" 
+                                           class="percentage-input" 
+                                           value="${participant.percentage.toFixed(
+                                             1
+                                           )}" 
+                                           min="0" max="100" step="0.1"
+                                           onchange="updateParticipantPercentage(${
+                                             participant.id
+                                           }, this.value)"
+                                           ${
+                                             eventData.calculationMode ===
+                                             "time"
+                                               ? 'disabled title="Modo automático ativo"'
+                                               : 'title="Porcentagem manual"'
+                                           }>
+                                    
+                                    ${
+                                      participant.status === "stopped"
+                                        ? `<button class="btn btn-success" onclick="startParticipant(${participant.id})">▶️</button>`
+                                        : ""
+                                    }
+                                    
+                                    ${
+                                      participant.status === "active"
+                                        ? `<button class="btn btn-warning" onclick="pauseParticipant(${participant.id})">⏸️</button>`
+                                        : ""
+                                    }
+                                    
+                                    ${
+                                      participant.status === "paused"
+                                        ? `<button class="btn btn-success" onclick="resumeParticipant(${participant.id})">▶️</button>`
+                                        : ""
+                                    }
+                                    
+                                    ${
+                                      participant.status !== "stopped"
+                                        ? `<button class="btn btn-danger" onclick="stopParticipant(${participant.id})">⏹️</button>`
+                                        : ""
+                                    }
+                                    
+                                    <button class="btn btn-secondary" onclick="removeParticipant(${
+                                      participant.id
+                                    })" title="Remover">🚪</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                      })
+                      .join("")}
+                </div>
+            `;
+      }
+
+      // Controles individuais
+      function startParticipant(id) {
+        const participant = participants.find((p) => p.id === id);
+        if (participant) {
+          participant.status = "active";
+          participant.currentSessionStart = new Date();
+          updateManageTab();
+          updateReports();
+        }
+      }
+
+      function pauseParticipant(id) {
+        const participant = participants.find((p) => p.id === id);
+        if (participant && participant.status === "active") {
+          const sessionTime = new Date() - participant.currentSessionStart;
+          participant.totalTime += sessionTime;
+          participant.sessions.push({
+            start: participant.currentSessionStart,
+            end: new Date(),
+            duration: sessionTime,
+          });
+          participant.status = "paused";
+          participant.currentSessionStart = null;
+
+          if (eventData.calculationMode === "time") {
+            redistributePercentages();
+          }
+
+          updateManageTab();
+          updateReports();
+        }
+      }
+
+      function resumeParticipant(id) {
+        const participant = participants.find((p) => p.id === id);
+        if (participant && participant.status === "paused") {
+          participant.status = "active";
+          participant.currentSessionStart = new Date();
+          updateManageTab();
+          updateReports();
+        }
+      }
+
+      function stopParticipant(id) {
+        const participant = participants.find((p) => p.id === id);
+        if (participant) {
+          if (participant.status === "active") {
+            const sessionTime = new Date() - participant.currentSessionStart;
+            participant.totalTime += sessionTime;
+            participant.sessions.push({
+              start: participant.currentSessionStart,
+              end: new Date(),
+              duration: sessionTime,
+            });
+          }
+          participant.status = "stopped";
+          participant.currentSessionStart = null;
+
+          if (eventData.calculationMode === "time") {
+            redistributePercentages();
+          }
+
+          updateManageTab();
+          updateReports();
+        }
+      }
+
+      // Controles em massa
+      function startAllParticipants() {
+        let startedCount = 0;
+        const now = new Date();
+
+        participants.forEach((participant) => {
+          if (
+            participant.status === "stopped" ||
+            participant.status === "paused"
+          ) {
+            participant.status = "active";
+            participant.currentSessionStart = now;
+            startedCount++;
+          }
+        });
+
+        if (startedCount > 0) {
+          updateManageTab();
+          updateReports();
+          alert(`${startedCount} participante(s) iniciado(s) simultaneamente!`);
+        } else {
+          alert("Todos os participantes já estão ativos.");
+        }
+      }
+
+      function pauseAllParticipants() {
+        let pausedCount = 0;
+        const now = new Date();
+
+        participants.forEach((participant) => {
+          if (participant.status === "active") {
+            const sessionTime = now - participant.currentSessionStart;
+            participant.totalTime += sessionTime;
+            participant.sessions.push({
+              start: participant.currentSessionStart,
+              end: now,
+              duration: sessionTime,
+            });
+            participant.status = "paused";
+            participant.currentSessionStart = null;
+            pausedCount++;
+          }
+        });
+
+        if (pausedCount > 0) {
+          if (eventData.calculationMode === "time") {
+            redistributePercentages();
+          }
+          updateManageTab();
+          updateReports();
+          alert(`${pausedCount} participante(s) pausado(s) simultaneamente!`);
+        } else {
+          alert("Nenhum participante ativo para pausar.");
+        }
+      }
+
+      function stopAllParticipants() {
+        if (
+          !confirm(
+            "Deseja parar TODOS os participantes? Suas sessões atuais serão finalizadas."
+          )
+        ) {
+          return;
+        }
+
+        let stoppedCount = 0;
+        const now = new Date();
+
+        participants.forEach((participant) => {
+          if (participant.status === "active") {
+            const sessionTime = now - participant.currentSessionStart;
+            participant.totalTime += sessionTime;
+            participant.sessions.push({
+              start: participant.currentSessionStart,
+              end: now,
+              duration: sessionTime,
+            });
+            participant.currentSessionStart = null;
+            stoppedCount++;
+          }
+          participant.status = "stopped";
+        });
+
+        if (eventData.calculationMode === "time") {
+          redistributePercentages();
+        }
+
+        updateManageTab();
+        updateReports();
+        alert(
+          `Todos os participantes foram parados. ${stoppedCount} sessão(ões) finalizada(s).`
+        );
+      }
+
+      // Adicionar participante durante evento
+      function addParticipantDuringEvent() {
+        const name = prompt("Nome do novo participante:");
+        if (!name || !name.trim()) return;
+
+        if (
+          participants.find(
+            (p) => p.name.toLowerCase() === name.trim().toLowerCase()
+          )
+        ) {
+          alert("Já existe um participante com este nome.");
+          return;
+        }
+
+        const participant = {
+          id: Date.now() + Math.random(),
+          name: name.trim(),
+          status: "stopped",
+          totalTime: 0,
+          currentSessionStart: null,
+          percentage: 0,
+          sessions: [],
+          joinTime: new Date(),
+        };
+
+        if (eventData.settings?.autoStartNewParticipants) {
+          participant.status = "active";
+          participant.currentSessionStart = new Date();
+          alert(`${name} foi adicionado e iniciado automaticamente!`);
+        } else {
+          alert(`${name} foi adicionado. Use os controles para iniciá-lo.`);
+        }
+
+        participants.push(participant);
+
+        if (eventData.calculationMode === "time") {
+          redistributePercentages();
+        }
+
+        updateManageTab();
+        updateReports();
+      }
+
+      // Atualizar porcentagem manual
+      function updateParticipantPercentage(id, percentage) {
+        const participant = participants.find((p) => p.id === id);
+        if (participant) {
+          const newPercentage = parseFloat(percentage) || 0;
+          if (newPercentage >= 0 && newPercentage <= 100) {
+            participant.percentage = newPercentage;
+            updateReports();
+            updateManageTab();
+          } else {
+            alert("A porcentagem deve estar entre 0 e 100.");
+            // Restaurar o valor anterior
+            const input = document.querySelector(
+              `input[onchange="updateParticipantPercentage(${id}, this.value)"]`
+            );
+            if (input) {
+              input.value = participant.percentage.toFixed(1);
+            }
+          }
+        }
+      }
+
+      // Redistribuir porcentagens automaticamente
+      // Função corrigida para redistribuir porcentagens automaticamente
+      function redistributePercentages() {
+        if (!eventData) return;
+
+        const totalTime = participants.reduce(
+          (sum, p) => sum + p.totalTime + getCurrentSessionTime(p),
+          0
+        );
+
+        if (totalTime === 0) {
+          participants.forEach((p) => (p.percentage = 0));
+          return;
+        }
+
+        // A porcentagem disponível para participantes é 100% (não 100% - hostRate)
+        // porque a porcentagem dos participantes representa a divisão entre eles
+        // O hostRate será aplicado posteriormente sobre o valor total
+        participants.forEach((participant) => {
+          const participantTime =
+            participant.totalTime + getCurrentSessionTime(participant);
+          participant.percentage = (participantTime / totalTime) * 100;
+        });
+
+        updateManageTab();
+        updateReports();
+      }
+
+      // Função corrigida para calcular valores financeiros
+      function calculateFinancialValues() {
+        if (!totalEventValue || totalEventValue <= 0) {
+          return null;
+        }
+
+        const hostValue = (totalEventValue * eventData.hostRate) / 100;
+        const remainingValue = totalEventValue - hostValue;
+
+        const totalParticipantPercentage = participants.reduce(
+          (sum, p) => sum + p.percentage,
+          0
+        );
+
+        const participantValues = participants.map((participant) => {
+          // Se não há porcentagem total dos participantes, divide igualmente
+          let participantValue = 0;
+          if (totalParticipantPercentage > 0) {
+            participantValue =
+              (remainingValue * participant.percentage) /
+              totalParticipantPercentage;
+          } else if (participants.length > 0) {
+            participantValue = remainingValue / participants.length;
+          }
+
+          return {
+            ...participant,
+            value: participantValue,
+            id: participant.id,
+          };
+        });
+
+        return {
+          totalValue: totalEventValue,
+          hostValue: hostValue,
+          remainingValue: remainingValue,
+          participantValues: participantValues,
+        };
+      }
+
+      // Atualizar timers
+      function updateTimers() {
+        if (eventActive && eventData && eventData.calculationMode === "time") {
+          redistributePercentages();
+        }
+        if (eventActive) {
+          updateManageTab();
+          updateReports();
+        }
+      }
+
+      // Finalizar evento
+      function finishEvent() {
+        if (
+          !confirm(
+            "Deseja finalizar o evento? Esta ação não pode ser desfeita."
+          )
+        )
+          return;
+
+        // Parar todos os participantes ativos
+        participants.forEach((participant) => {
+          if (participant.status === "active") {
+            stopParticipant(participant.id);
+          }
+        });
+
+        eventActive = false;
+        if (eventData) {
+          eventData.status = "finished";
+          eventData.endTime = new Date();
+        }
+
+        if (mainTimer) {
+          clearInterval(mainTimer);
+          mainTimer = null;
+        }
+
+        document.getElementById("floatingControls").style.display = "none";
+
+        if (eventData.calculationMode === "time") {
+          redistributePercentages();
+        }
+
+        // Se não há valor definido, perguntar
+        if (!totalEventValue || totalEventValue <= 0) {
+          if (
+            confirm(
+              "Deseja definir o valor total do evento agora para calcular os valores de cada participante?"
+            )
+          ) {
+            setTotalValue();
+          }
+        }
+
+        showTab("reports");
+        alert("Evento finalizado! Confira os relatórios.");
+      }
+
+      // Limpar tudo
+      function clearAll() {
+        if (eventActive) {
+          alert("Não é possível limpar durante um evento ativo.");
+          return;
+        }
+
+        if (
+          !confirm(
+            "Deseja limpar todos os dados? Esta ação não pode ser desfeita."
+          )
+        )
+          return;
+
+        participants = [];
+        eventData = null;
+        totalEventValue = 0;
+        eventActive = false;
+
+        // Limpar timer se existir
+        if (mainTimer) {
+          clearInterval(mainTimer);
+          mainTimer = null;
+        }
+
+        document.getElementById("eventName").value = "";
+        document.getElementById("eventDescription").value = "";
+        document.getElementById("hostRate").value = "20";
+        document.getElementById("totalValue").value = "";
+        document.getElementById("participantName").value = "";
+        document.getElementById("participantInitialPercent").value = "";
+
+        renderParticipants();
+        updateReports();
+        document.getElementById("eventInfo").innerHTML = "";
+        document.getElementById("participantsManage").innerHTML = "";
+        document.getElementById("floatingControls").style.display = "none";
+
+        alert("Todos os dados foram limpos.");
+      }
+
+      // Relatórios
+      function updateReports() {
+        if (!eventData) {
+          document.getElementById("reportContent").innerHTML =
+            '<div class="alert alert-warning">Nenhum evento para exibir relatórios</div>';
+          return;
+        }
+
+        const totalParticipantTime = participants.reduce(
+          (sum, p) => sum + p.totalTime + getCurrentSessionTime(p),
+          0
+        );
+        const totalPercentage = participants.reduce(
+          (sum, p) => sum + p.percentage,
+          0
+        );
+
+        const financial = calculateFinancialValues();
+
+        document.getElementById("reportContent").innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${eventData.hostRate}%</div>
+                        <div class="stat-label">Taxa do Host</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${participants.length}</div>
+                        <div class="stat-label">Participantes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatTime(
+                          totalParticipantTime
+                        )}</div>
+                        <div class="stat-label">Tempo Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${totalPercentage.toFixed(
+                          1
+                        )}%</div>
+                        <div class="stat-label">Total Distribuído</div>
+                    </div>
+                    ${
+                      financial
+                        ? `
+                    <div class="stat-card">
+                        <div class="stat-value">M ${financial.totalValue.toFixed(
+                          2
+                        )}</div>
+                        <div class="stat-label">Valor Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">M ${financial.hostValue.toFixed(
+                          2
+                        )}</div>
+                        <div class="stat-label">Valor do Host</div>
+                    </div>
+                    `
+                        : ""
+                    }
+                </div>
+
+                ${
+                  !financial
+                    ? `
+                <div class="alert alert-warning">
+                    💡 <strong>Dica:</strong> Use o botão "💰 Definir Valor Total" para calcular automaticamente os valores de cada participante!
+                </div>
+                `
+                    : `
+                <div class="form-section">
+                    <div class="section-title">💰 Distribuição Financeira</div>
+                    <div class="value-card">
+                        <h3>M ${financial.totalValue.toFixed(2)}</h3>
+                        <p>Valor Total Arrecadado</p>
+                    </div>
+                    <div class="alert alert-success">
+                        <strong>Host (${
+                          eventData.hostRate
+                        }%):</strong> M ${financial.hostValue.toFixed(2)}<br>
+                        <strong>Para Participantes:</strong> M ${financial.remainingValue.toFixed(
+                          2
+                        )}
+                    </div>
+                </div>
+                `
+                }
+
+                <div class="form-section">
+                    <div class="section-title">🏠 Distribuição Final</div>
+                    
+                    <div class="participant-card">
+                        <div class="participant-header">
+                            <div class="participant-info">
+                                <div class="participant-name">🏠 Host - ${
+                                  eventData.name
+                                }</div>
+                                <div class="participant-stats">
+                                    <span><strong>${
+                                      eventData.hostRate
+                                    }% da receita total</strong></span>
+                                    ${
+                                      financial
+                                        ? `<span><strong>M ${financial.hostValue.toFixed(
+                                            2
+                                          )}</strong></span>`
+                                        : ""
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${participants
+                      .sort((a, b) => b.percentage - a.percentage)
+                      .map((participant) => {
+                        const participantValue = financial
+                          ? financial.participantValues.find(
+                              (p) => p.id === participant.id
+                            )?.value || 0
+                          : 0;
+                        return `
+                        <div class="participant-card">
+                            <div class="participant-header">
+                                <div class="participant-info">
+                                    <div class="participant-name">${
+                                      participant.name
+                                    }</div>
+                                    <div class="participant-stats">
+                                        <span class="timer">${formatTime(
+                                          participant.totalTime +
+                                            getCurrentSessionTime(participant)
+                                        )}</span>
+                                        <span><strong>${participant.percentage.toFixed(
+                                          1
+                                        )}%</strong></span>
+                                        ${
+                                          financial
+                                            ? `<span><strong>M ${participantValue.toFixed(
+                                                2
+                                              )}</strong></span>`
+                                            : ""
+                                        }
+                                        <span>${
+                                          participant.sessions.length
+                                        } sessões</span>
+                                        <span class="status-indicator status-${
+                                          participant.status
+                                        }">
+                                            ${getStatusIcon(
+                                              participant.status
+                                            )} ${getStatusText(
+                          participant.status
+                        )}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                      })
+                      .join("")}
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-warning" onclick="setTotalValue()">💰 Definir Valor Total</button>
+                    <button class="btn btn-success" onclick="exportPDF()">📄 Exportar PDF</button>
+                    <button class="btn btn-primary" onclick="exportData()">💾 Exportar JSON</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()">📊 Exportar CSV</button>
+                </div>
+            `;
+      }
+
+      // Exportar PDF
+      function exportPDF() {
+        if (!eventData) {
+          alert("Nenhum evento para exportar.");
+          return;
+        }
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          let yPosition = 20;
+
+          // Título
+          doc.setFontSize(20);
+          doc.setFont("helvetica", "bold");
+          doc.text("RELATÓRIO DE PARTICIPAÇÃO", pageWidth / 2, yPosition, {
+            align: "center",
+          });
+          yPosition += 10;
+
+          doc.setFontSize(16);
+          doc.text(eventData.name, pageWidth / 2, yPosition, {
+            align: "center",
+          });
+          yPosition += 20;
+
+          // Informações do evento
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            `Data: ${new Date(eventData.startTime).toLocaleDateString(
+              "pt-BR"
+            )}`,
+            20,
+            yPosition
+          );
+          yPosition += 8;
+          doc.text(
+            `Duração: ${formatTime(
+              eventData.endTime
+                ? eventData.endTime - eventData.startTime
+                : new Date() - eventData.startTime
+            )}`,
+            20,
+            yPosition
+          );
+          yPosition += 8;
+          doc.text(
+            `Status: ${getEventStatusText(eventData.status)}`,
+            20,
+            yPosition
+          );
+          yPosition += 8;
+          doc.text(
+            `Modo de Cálculo: ${
+              eventData.calculationMode === "time"
+                ? "Baseado no Tempo"
+                : eventData.calculationMode === "manual"
+                ? "Manual"
+                : "Híbrido"
+            }`,
+            20,
+            yPosition
+          );
+          yPosition += 15;
+
+          // Cálculos financeiros se houver valor
+          const financial = calculateFinancialValues();
+          if (financial) {
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("DISTRIBUIÇÃO FINANCEIRA", 20, yPosition);
+            yPosition += 10;
+
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text(
+              `Valor Total Arrecadado: M ${financial.totalValue.toFixed(2)}`,
+              20,
+              yPosition
+            );
+            yPosition += 8;
+            doc.text(
+              `Host (${eventData.hostRate}%): M ${financial.hostValue.toFixed(
+                2
+              )}`,
+              20,
+              yPosition
+            );
+            yPosition += 8;
+            doc.text(
+              `Total para Participantes: M ${financial.remainingValue.toFixed(
+                2
+              )}`,
+              20,
+              yPosition
+            );
+            yPosition += 15;
+          }
+
+          // Tabela de participantes
+          doc.setFontSize(14);
+          doc.setFont("helvetica", "bold");
+          doc.text("PARTICIPANTES", 20, yPosition);
+          yPosition += 10;
+
+          // Cabeçalho da tabela
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          const headers = [
+            "Nome",
+            "Tempo",
+            "%",
+            financial ? "Valor (M)" : "Sessões",
+          ];
+          const columnWidths = financial ? [60, 30, 20, 30] : [80, 30, 25, 25];
+          let xPosition = 20;
+
+          headers.forEach((header, index) => {
+            doc.text(header, xPosition, yPosition);
+            xPosition += columnWidths[index];
+          });
+
+          yPosition += 8;
+          doc.setFont("helvetica", "normal");
+
+          // Dados dos participantes
+          const sortedParticipants = [...participants].sort(
+            (a, b) => b.percentage - a.percentage
+          );
+
+          sortedParticipants.forEach((participant) => {
+            if (yPosition > pageHeight - 30) {
+              doc.addPage();
+              yPosition = 20;
+            }
+
+            xPosition = 20;
+            const totalTime =
+              participant.totalTime + getCurrentSessionTime(participant);
+            const participantValue = financial
+              ? financial.participantValues.find((p) => p.id === participant.id)
+                  ?.value || 0
+              : 0;
+
+            const data = [
+              participant.name.substring(0, 20),
+              formatTime(totalTime),
+              `${participant.percentage.toFixed(1)}%`,
+              financial
+                ? `${participantValue.toFixed(2)}`
+                : participant.sessions.length.toString(),
+            ];
+
+            data.forEach((item, index) => {
+              doc.text(item, xPosition, yPosition);
+              xPosition += columnWidths[index];
+            });
+
+            yPosition += 6;
+          });
+
+          // Resumo final
+          yPosition += 10;
+          if (yPosition > pageHeight - 50) {
+            doc.addPage();
+            yPosition = 20;
+          }
+
+          doc.setFont("helvetica", "bold");
+          doc.text("RESUMO", 20, yPosition);
+          yPosition += 8;
+
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            `Total de Participantes: ${participants.length}`,
+            20,
+            yPosition
+          );
+          yPosition += 6;
+
+          const totalTime = participants.reduce(
+            (sum, p) => sum + p.totalTime + getCurrentSessionTime(p),
+            0
+          );
+          doc.text(
+            `Tempo Total de Participação: ${formatTime(totalTime)}`,
+            20,
+            yPosition
+          );
+          yPosition += 6;
+
+          const totalPercentage = participants.reduce(
+            (sum, p) => sum + p.percentage,
+            0
+          );
+          doc.text(
+            `Total Distribuído: ${totalPercentage.toFixed(1)}%`,
+            20,
+            yPosition
+          );
+          yPosition += 10;
+
+          if (financial) {
+            doc.text(
+              `Valor Total: M ${financial.totalValue.toFixed(2)}`,
+              20,
+              yPosition
+            );
+            yPosition += 6;
+            doc.text(
+              `Host: M ${financial.hostValue.toFixed(2)}`,
+              20,
+              yPosition
+            );
+            yPosition += 6;
+            doc.text(
+              `Participantes: M ${financial.remainingValue.toFixed(2)}`,
+              20,
+              yPosition
+            );
+            yPosition += 10;
+          }
+
+          // Rodapé
+          doc.setFontSize(8);
+          doc.text(
+            `Relatório gerado em ${new Date().toLocaleString(
+              "pt-BR"
+            )} pelo Party Manager Pro`,
+            pageWidth / 2,
+            pageHeight - 10,
+            { align: "center" }
+          );
+
+          // Salvar
+          const fileName = `relatorio-${eventData.name.replace(/\s+/g, "-")}-${
+            new Date().toISOString().split("T")[0]
+          }.pdf`;
+          doc.save(fileName);
+
+          alert("Relatório PDF gerado com sucesso!");
+        } catch (error) {
+          console.error("Erro ao gerar PDF:", error);
+          alert(
+            "Erro ao gerar o PDF. Verifique se a biblioteca jsPDF foi carregada corretamente."
+          );
+        }
+      }
+
+      // Exportar dados JSON
+      function exportData() {
+        if (!eventData) {
+          alert("Nenhum evento para exportar.");
+          return;
+        }
+
+        try {
+          const exportData = {
+            event: {
+              ...eventData,
+              duration: eventData.endTime
+                ? eventData.endTime - eventData.startTime
+                : new Date() - eventData.startTime,
+              totalValue: totalEventValue,
+            },
+            participants: participants.map((p) => ({
+              ...p,
+              currentTotalTime: p.totalTime + getCurrentSessionTime(p),
+              calculatedValue: calculateFinancialValues()
+                ? calculateFinancialValues().participantValues.find(
+                    (pv) => pv.id === p.id
+                  )?.value || 0
+                : 0,
+            })),
+            financial: calculateFinancialValues(),
+            summary: {
+              totalParticipants: participants.length,
+              totalTime: participants.reduce(
+                (sum, p) => sum + p.totalTime + getCurrentSessionTime(p),
+                0
+              ),
+              totalPercentage: participants.reduce(
+                (sum, p) => sum + p.percentage,
+                0
+              ),
+              exportDate: new Date().toISOString(),
+            },
+          };
+
+          const dataStr = JSON.stringify(exportData, null, 2);
+          const dataUri =
+            "data:application/json;charset=utf-8," +
+            encodeURIComponent(dataStr);
+          const fileName = `party-report-${eventData.name.replace(
+            /\s+/g,
+            "-"
+          )}-${new Date().toISOString().split("T")[0]}.json`;
+
+          const link = document.createElement("a");
+          link.setAttribute("href", dataUri);
+          link.setAttribute("download", fileName);
+          link.click();
+
+          alert("Relatório JSON exportado com sucesso!");
+        } catch (error) {
+          console.error("Erro ao exportar JSON:", error);
+          alert("Erro ao exportar os dados. Tente novamente.");
+        }
+      }
+
+      // Exportar CSV
+      function exportCSV() {
+        if (!eventData) {
+          alert("Nenhum evento para exportar.");
+          return;
+        }
+
+        try {
+          const financial = calculateFinancialValues();
+          const csvData = [
+            financial
+              ? [
+                  "Nome",
+                  "Tempo Total",
+                  "Porcentagem",
+                  "Valor (M)",
+                  "Status",
+                  "Sessões",
+                ]
+              : ["Nome", "Tempo Total", "Porcentagem", "Status", "Sessões"],
+            financial
+              ? [
+                  "HOST",
+                  "00:00:00",
+                  `${eventData.hostRate}%`,
+                  financial.hostValue.toFixed(2),
+                  "N/A",
+                  "N/A",
+                ]
+              : ["HOST", "00:00:00", `${eventData.hostRate}%`, "N/A", "N/A"],
+            ...participants.map((p) => {
+              const participantValue = financial
+                ? financial.participantValues.find((pv) => pv.id === p.id)
+                    ?.value || 0
+                : 0;
+              return financial
+                ? [
+                    p.name,
+                    formatTime(p.totalTime + getCurrentSessionTime(p)),
+                    `${p.percentage.toFixed(1)}%`,
+                    participantValue.toFixed(2),
+                    getStatusText(p.status),
+                    p.sessions.length,
+                  ]
+                : [
+                    p.name,
+                    formatTime(p.totalTime + getCurrentSessionTime(p)),
+                    `${p.percentage.toFixed(1)}%`,
+                    getStatusText(p.status),
+                    p.sessions.length,
+                  ];
+            }),
+          ];
+
+          const csvContent = csvData.map((row) => row.join(",")).join("\n");
+          const dataUri =
+            "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+          const fileName = `party-report-${eventData.name.replace(
+            /\s+/g,
+            "-"
+          )}-${new Date().toISOString().split("T")[0]}.csv`;
+
+          const link = document.createElement("a");
+          link.setAttribute("href", dataUri);
+          link.setAttribute("download", fileName);
+          link.click();
+
+          alert("CSV exportado com sucesso!");
+        } catch (error) {
+          console.error("Erro ao exportar CSV:", error);
+          alert("Erro ao exportar o CSV. Tente novamente.");
+        }
+      }
+
+      // Funções utilitárias
+      function getCurrentSessionTime(participant) {
+        if (
+          participant.status === "active" &&
+          participant.currentSessionStart
+        ) {
+          return new Date() - participant.currentSessionStart;
+        }
+        return 0;
+      }
+
+      function formatTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        return `${hours.toString().padStart(2, "0")}:${(minutes % 60)
+          .toString()
+          .padStart(2, "0")}:${(seconds % 60).toString().padStart(2, "0")}`;
+      }
+
+      function getStatusIcon(status) {
+        switch (status) {
+          case "active":
+            return "🟢";
+          case "paused":
+            return "🟡";
+          case "stopped":
+            return "🔴";
+          default:
+            return "⚪";
+        }
+      }
+
+      function getStatusText(status) {
+        switch (status) {
+          case "active":
+            return "Ativo";
+          case "paused":
+            return "Pausado";
+          case "stopped":
+            return "Parado";
+          default:
+            return "Indefinido";
+        }
+      }
+
+      function getEventStatusIcon(status) {
+        switch (status) {
+          case "active":
+            return "🟢";
+          case "finished":
+            return "🏁";
+          default:
+            return "📋";
+        }
+      }
+
+      function getEventStatusText(status) {
+        switch (status) {
+          case "active":
+            return "Em Andamento";
+          case "finished":
+            return "Finalizado";
+          default:
+            return "Criado";
+        }
+      }
+
+      // Event listeners
+      document.addEventListener("keypress", function (e) {
+        if (e.key === "Enter" && e.target.id === "participantName") {
+          addParticipant();
+        }
+      });
+
+      // Prevenir perda de dados
+      window.addEventListener("beforeunload", function (e) {
+        if (eventActive) {
+          const message = "Você tem um evento ativo. Deseja realmente sair?";
+          e.returnValue = message;
+          return message;
+        }
+      });
+
+      // Cleanup ao sair da página
+      window.addEventListener("unload", function () {
+        if (mainTimer) {
+          clearInterval(mainTimer);
+        }
+      });
+    </script>
+  </body>
+</html>
